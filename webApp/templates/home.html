@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+  {% for post in posts %}
+    <div class="media border mt-4" style="border-radius: 15px;">
+      <div class="media-body pt-4 pl-4 pr-4 pb-2">
+        <ul class="list-inline" style="margin-bottom: 0px;">
+          <li class="list-inline-item"><h4>{{ post.title }}</h4></li>
+	  <li class="list-inline-item"><p><span class="text-primary">{{ post.author }}</span> said on {{ post.created.strftime("%B %-d, %Y at %-I:%M %p") }}</p></li>
+        </ul>
+        <hr style="margin-top: 0px;">
+        <p>{{ post.content }}</p>
+      </div>
+    </div>
+  {% endfor %}
+{% endblock content %}

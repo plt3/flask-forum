@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <form class="border p-3 mt-3 rounded" action="" method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      <legend>Create a Post:</legend>
+      <hr>
+      {{ form.name.label }}
+      {{ form.name(class="form-control", placeholder="Your name here") }}
+    </div>
+    <div class="form-group">
+      {{ form.title.label }}
+      {{ form.title(class="form-control", placeholder="Title of post") }}
+    </div>
+    <div class="form-group">
+      {{ form.content.label }}
+      {{ form.content(class="form-control", placeholder="What would you like to say?") }}
+    </div>
+    <div class="form-group">
+      {{ form.submit(class="btn btn-info") }}
+    </div>
+  </form>
+{% endblock content %}
