@@ -5,3 +5,6 @@ __pycache__
 venv
 
 *.db
+
+commentModel.py
+jinjaTest.py

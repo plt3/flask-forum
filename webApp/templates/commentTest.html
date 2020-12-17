@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+  <div style="border: 2px solid orange; padding: 10px;">
+
+  {%- macro recPrint(comList, level=0) -%}
+    {%- if comList | length > 0 -%}
+      {%- for comment in comList %}
+        {% if level == 0 %}
+  {{ '  ' * (level + 1) }}<div class="container m-2">
+        {% else %}
+  {{ '  ' * (level + 1) }}<div class="container border-left m-2">
+        {% endif %}
+  {{ '  ' * (level + 2) + comment.content }}
+        {{ recPrint(comment.replies, level + 1) }}
+  {{ '  ' * (level + 1) }}</div>
+      {% endfor -%}
+    {%- endif -%}
+  {%- endmacro -%}
+
+  {{ recPrint(data) }}
+
+  </div>
+
+{% endblock content %}
