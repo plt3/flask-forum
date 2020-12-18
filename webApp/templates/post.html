@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <article class="pt-4 pl-4 pr-4 pb-2 mt-4 border post-container">
+    <div class="post-title">
+      <h3>{{ post.title }}</h3>
+      <p class="text-secondary mb-2"><span class="text-info">{{ post.author }}</span> — {{ post.created.strftime("%B %-d, %Y at %-I:%M %p") }}</p>
+    </div>
+    <hr class="mt-0">
+    <p>{{ post.content }}</p>
+    <hr class="mt-0">
+
+  <h5>Comments: {{ numComments }}</h5>
+
+  {%- macro recPrint(comList, level=0) -%}
+    {%- if comList | length > 0 -%}
+      {%- for comment in comList %}
+        {% if level == 0 -%}
+          {% set border = '' %}
+        {%- else -%}
+          {% set border = 'border-left ml-2 ' %}
+        {%- endif %}
+  {{ '  ' * (level + 1) }}<div class="container {{ border }}mb-2 mt-2">
+  {{ '  ' * (level + 2) }}<small class="m-0 text-muted">{{ comment.author }} — {{ comment.date.strftime("%-m/%-d/%Y, %-I:%M %p") }} | <button type="button" class="btn btn-link text-decoration-none btn-sm p-0 pb-1" onclick="postReply()">Reply</button></small>
+  {{ '  ' * (level + 2) }}<p class="m-0">{{ comment.content }}</p>
+        {{ recPrint(comment.replies, level + 1) }}
+  {{ '  ' * (level + 1) }}</div>
+      {% endfor -%}
+    {%- endif -%}
+  {%- endmacro -%}
+
+  {{ recPrint(data) }}
+
+  </article>
+  <script src="{{ url_for('static', filename='commentReply.js', t=t) }}" charset="utf-8"></script>
+{% endblock content %}

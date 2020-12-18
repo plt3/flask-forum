@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def getReplies(searchList, id, sort=False):
     # return comments replying to the specified ID (from comment list from database)
     replies = [comment for comment in searchList if comment["replyTo"] == id]
@@ -15,9 +18,13 @@ def createListDict(wholeList, id=0, appendList=False):
     if id == 0:
         appendList = []
 
+    # the datetime.now() is a patch. This needs to be replaced with the actual time
+
     for comment in getReplies(wholeList, id):
         commentDict = {
             "id": comment["id"],
+            "author": comment["author"],
+            "date": datetime.now(),
             "content": comment["content"],
             "replies": [],
         }

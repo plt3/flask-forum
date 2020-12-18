@@ -1,3 +1,5 @@
+import time
+
 from flask import redirect, render_template, url_for
 
 from webApp import app, db
@@ -5,34 +7,85 @@ from webApp.forms import PostForm
 from webApp.models import Post
 from webApp.utils import createListDict
 
+# these also need a date posted and then I need to fix the patch in utils.py
+
 listComments = [
-    {"id": 1, "content": "here is first comment, very nice", "replyTo": 0},
-    {"id": 2, "content": "second comment yolo", "replyTo": 0},
-    {"id": 3, "content": "first reply to 2", "replyTo": 2},
-    {"id": 4, "content": "I agree with whomever said 3", "replyTo": 2},
-    {"id": 5, "content": "this is so facts", "replyTo": 2},
-    {"id": 6, "content": "nah mr. facts you're kinda wrong", "replyTo": 5},
-    {"id": 7, "content": "what? he's super right bro", "replyTo": 6},
-    {"id": 8, "content": "nah you aren't dawg", "replyTo": 6},
-    {"id": 9, "content": "just back one level out", "replyTo": 2},
-    {"id": 10, "content": "main level baby", "replyTo": 0},
-    {"id": 11, "content": "should be responding to comment 5", "replyTo": 5},
-    {"id": 12, "content": "I agree with comment 8", "replyTo": 8},
-    {"id": 13, "content": "It's true, he's super right", "replyTo": 7},
-    {"id": 14, "content": "testing", "replyTo": 10},
-    {"id": 15, "content": "replying to the OG man", "replyTo": 1},
-    {"id": 16, "content": "yes you are indeed", "replyTo": 11},
+    {
+        "author": "Mr. Paul",
+        "id": 1,
+        "content": "here is first comment, very nice",
+        "replyTo": 0,
+    },
+    {"author": "Mr. Paul", "id": 2, "content": "second comment yolo", "replyTo": 0},
+    {"author": "Mr. Paul", "id": 3, "content": "first reply to 2", "replyTo": 2},
+    {
+        "author": "Mr. Paul",
+        "id": 4,
+        "content": "I agree with whomever said 3",
+        "replyTo": 2,
+    },
+    {"author": "Mr. Paul", "id": 5, "content": "this is so facts", "replyTo": 2},
+    {
+        "author": "Mr. Paul",
+        "id": 6,
+        "content": "nah mr. facts you're kinda wrong",
+        "replyTo": 5,
+    },
+    {
+        "author": "I am the coolest person in the entire world and I would like you to know that",
+        "id": 7,
+        "content": "what? he's super right bro you have no idea how bigoted your comment sounds to someone like me who knows the lay of the land so much better",
+        "replyTo": 6,
+    },
+    {"author": "Mr. Paul", "id": 8, "content": "nah you aren't dawg", "replyTo": 6},
+    {"author": "Mr. Paul", "id": 9, "content": "just back one level out", "replyTo": 2},
+    {"author": "Mr. Paul", "id": 10, "content": "main level baby", "replyTo": 0},
+    {
+        "author": "Mr. Paul",
+        "id": 11,
+        "content": "should be responding to comment 5",
+        "replyTo": 5,
+    },
+    {"author": "Mr. Paul", "id": 12, "content": "I agree with comment 8", "replyTo": 8},
+    {
+        "author": "Mr. Paul",
+        "id": 13,
+        "content": "It's true, he's super right",
+        "replyTo": 7,
+    },
+    {"author": "Mr. Paul", "id": 14, "content": "testing", "replyTo": 10},
+    {"author": "Mr. Paul", "id": 15, "content": "replying to the OG man", "replyTo": 1},
+    {"author": "Mr. Paul", "id": 16, "content": "yes you are indeed", "replyTo": 11},
 ]
 
 
 @app.route("/")
 def home():
+    # should probably paginate at some point
     posts = Post.query.all()
+    posts.reverse()
 
     return render_template("home.html", posts=posts)
 
 
-@app.route("/post", methods=["GET", "POST"])
+@app.route("/post/<int:postId>")
+def post(postId):
+    postObj = Post.query.get(postId)
+    dataQuery = listComments
+    fakeJson = createListDict(dataQuery)
+
+    # DELETE t=time.time() once javascript is good!!!
+
+    return render_template(
+        "post.html",
+        post=postObj,
+        data=fakeJson,
+        numComments=len(dataQuery),
+        t=time.time(),
+    )
+
+
+@app.route("/createPost", methods=["GET", "POST"])
 def createPost():
     form = PostForm()
 
