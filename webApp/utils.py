@@ -28,7 +28,8 @@ def createListDict(wholeList, id=0, appendList=False):
             "content": comment["content"],
             "replies": [],
         }
-        appendList.append(commentDict)
+        # appendList.append(commentDict)
+        appendList.insert(0, commentDict)
         createListDict(wholeList, commentDict["id"], commentDict["replies"])
 
     if id == 0:

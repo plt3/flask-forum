@@ -1,9 +1,9 @@
 import time
 
-from flask import redirect, render_template, url_for
+from flask import redirect, render_template, request, url_for
 
 from webApp import app, db
-from webApp.forms import PostForm
+from webApp.forms import CommentForm, PostForm
 from webApp.models import Post
 from webApp.utils import createListDict
 
@@ -21,10 +21,15 @@ listComments = [
     {
         "author": "Mr. Paul",
         "id": 4,
-        "content": "I agree with whomever said 3",
+        "content": "second reply to 2",
         "replyTo": 2,
     },
-    {"author": "Mr. Paul", "id": 5, "content": "this is so facts", "replyTo": 2},
+    {
+        "author": "Mr. Paul",
+        "id": 5,
+        "content": "third reply to 2 this is so facts",
+        "replyTo": 2,
+    },
     {
         "author": "Mr. Paul",
         "id": 6,
@@ -70,6 +75,8 @@ def home():
 
 @app.route("/post/<int:postId>")
 def post(postId):
+    form = CommentForm()
+
     postObj = Post.query.get(postId)
     dataQuery = listComments
     fakeJson = createListDict(dataQuery)
@@ -81,6 +88,7 @@ def post(postId):
         post=postObj,
         data=fakeJson,
         numComments=len(dataQuery),
+        form=form,
         t=time.time(),
     )
 
@@ -103,8 +111,22 @@ def createPost():
     return render_template("createPost.html", form=form)
 
 
-@app.route("/test")
-def test():
-    dataQuery = listComments
-    fakeJson = createListDict(dataQuery)
-    return render_template("commentTest.html", data=fakeJson)
+@app.route("/addComment/<int:postId>", methods=["POST"])
+def addComment(postId):
+    # this needs a lot more input sanitization
+
+    # this is a stand-in for adding to the database
+    print(request.json)
+
+    comDict = {
+        "author": request.json.get("name"),
+        "id": max([com["id"] for com in listComments]) + 1,
+        "content": request.json.get("content"),
+        "replyTo": 0,
+    }
+
+    listComments.append(comDict)
+
+    # should return way more helpful information than what it currently does
+
+    return str(postId)

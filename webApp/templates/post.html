@@ -11,6 +11,14 @@
 
   <h5>Comments: {{ numComments }}</h5>
 
+  <form class="border p-3 rounded" action="" method="POST">
+    {{ form.csrf_token }}
+    {{ form.postId(value=post.id) }}
+    {{ form.name(class="form-control form-control-sm", placeholder="username") }}
+    {{ form.content(class="form-control form-control-sm mt-2 mb-2", placeholder="What would you like to say?") }}
+    {{ form.submit(class="btn btn-info btn-sm", onclick="postComment()") }}
+  </form>
+
   {%- macro recPrint(comList, level=0) -%}
     {%- if comList | length > 0 -%}
       {%- for comment in comList %}

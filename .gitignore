@@ -8,3 +8,8 @@ venv
 
 commentModel.py
 jinjaTest.py
+
+.eslintrc.js
+node_modules/
+package-lock.json
+package.json
