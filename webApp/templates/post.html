@@ -27,7 +27,7 @@
         {%- else -%}
           {% set border = 'border-left ml-2 ' %}
         {%- endif %}
-  {{ '  ' * (level + 1) }}<div class="container {{ border }}mb-2 mt-2">
+  {{ '  ' * (level + 1) }}<div class="container {{ border }}mb-2 mt-2" id="{{ comment.id }}">
   {{ '  ' * (level + 2) }}<small class="m-0 text-muted">{{ comment.author }} — {{ comment.date.strftime("%-m/%-d/%Y, %-I:%M %p") }} | <button type="button" class="btn btn-link text-decoration-none btn-sm p-0 pb-1" onclick="postReply()">Reply</button></small>
   {{ '  ' * (level + 2) }}<p class="m-0">{{ comment.content }}</p>
         {{ recPrint(comment.replies, level + 1) }}
