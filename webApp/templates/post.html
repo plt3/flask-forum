@@ -9,11 +9,10 @@
     <p>{{ post.content }}</p>
     <hr class="mt-0">
 
-  <h5>Comments: {{ numComments }}</h5>
+  <h5 id="comment-num">Comments: {{ numComments }}</h5>
 
   <form class="border p-3 rounded" action="" method="POST">
-    {{ form.csrf_token }}
-    {{ form.postId(value=post.id) }}
+    {{ form.hidden_tag() }}
     {{ form.name(class="form-control form-control-sm", placeholder="username") }}
     {{ form.content(class="form-control form-control-sm mt-2 mb-2", placeholder="What would you like to say?") }}
     {{ form.submit(class="btn btn-info btn-sm", onclick="postComment()") }}
@@ -28,7 +27,7 @@
           {% set border = 'border-left ml-2 ' %}
         {%- endif %}
   {{ '  ' * (level + 1) }}<div class="container {{ border }}mb-2 mt-2" id="{{ comment.id }}">
-  {{ '  ' * (level + 2) }}<small class="m-0 text-muted">{{ comment.author }} — {{ comment.date.strftime("%-m/%-d/%Y, %-I:%M %p") }} | <button type="button" class="btn btn-link text-decoration-none btn-sm p-0 pb-1" onclick="postReply()">Reply</button></small>
+  {{ '  ' * (level + 2) }}<small class="m-0 text-muted">{{ comment.author }} — {{ comment.created.strftime("%-m/%-d/%Y, %-I:%M %p") }} | <button type="button" class="btn btn-link text-decoration-none btn-sm p-0 pb-1" onclick="createReplyForm()">Reply</button></small>
   {{ '  ' * (level + 2) }}<p class="m-0">{{ comment.content }}</p>
         {{ recPrint(comment.replies, level + 1) }}
   {{ '  ' * (level + 1) }}</div>
