@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
-  {% for post in posts %}
+  {% for post in posts.items %}
     <div class="media border mt-4 post-container">
       <div class="media-body pt-4 pl-4 pr-4 pb-2">
         <ul class="list-inline mb-0">
@@ -12,4 +12,19 @@
       </div>
     </div>
   {% endfor %}
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-end pt-3">
+      {%- for page in posts.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+        {% if page %}
+          {% if page != posts.page %}
+	    <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+          {% else %}
+	    <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+          {% endif %}
+        {% else %}
+	  <li class="page-item disabled"><p class="page-link">...</p></li>
+        {% endif %}
+      {%- endfor %}
+    </ul>
+  </nav>
 {% endblock content %}

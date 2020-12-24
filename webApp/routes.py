@@ -7,129 +7,13 @@ from webApp.forms import CommentForm, PostForm
 from webApp.models import Comment, Post
 from webApp.utils import createListDict
 
-# these also need a date posted and then I need to fix the patch in utils.py
-
-# listComments = [
-#     {
-#         "author": "Mr. Paul",
-#         "id": 1,
-#         "postedOn": 1,
-#         "content": "here is first comment, very nice",
-#         "replyTo": 0,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 2,
-#         "content": "second comment yolo",
-#         "replyTo": 0,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 3,
-#         "content": "first reply to 2",
-#         "replyTo": 2,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 4,
-#         "content": "second reply to 2",
-#         "replyTo": 2,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 5,
-#         "content": "third reply to 2 this is so facts",
-#         "replyTo": 2,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 6,
-#         "content": "nah mr. facts you're kinda wrong",
-#         "replyTo": 5,
-#     },
-#     {
-#         "author": "I am the coolest person in the entire world and I would like you to know that",
-#         "postedOn": 1,
-#         "id": 7,
-#         "content": "what? he's super right bro you have no idea how bigoted your comment sounds to someone like me who knows the lay of the land so much better",
-#         "replyTo": 6,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 8,
-#         "content": "nah you aren't dawg",
-#         "replyTo": 6,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 9,
-#         "content": "just back one level out",
-#         "replyTo": 2,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 10,
-#         "content": "main level baby",
-#         "replyTo": 0,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 11,
-#         "content": "should be responding to comment 5",
-#         "replyTo": 5,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 12,
-#         "content": "I agree with comment 8",
-#         "replyTo": 8,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 13,
-#         "content": "It's true, he's super right",
-#         "replyTo": 7,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 14,
-#         "content": "testing",
-#         "replyTo": 10,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 15,
-#         "content": "replying to the OG man",
-#         "replyTo": 1,
-#     },
-#     {
-#         "author": "Mr. Paul",
-#         "postedOn": 1,
-#         "id": 16,
-#         "content": "yes you are indeed",
-#         "replyTo": 11,
-#     },
-# ]
-
 
 @app.route("/")
 def home():
-    # should probably paginate at some point
-    posts = Post.query.all()
-    posts.reverse()
+    PER_PAGE = 5
+
+    page = request.args.get("page", default=1, type=int)
+    posts = Post.query.order_by(Post.id.desc()).paginate(page=page, per_page=PER_PAGE)
 
     return render_template("home.html", posts=posts)
 
@@ -141,9 +25,8 @@ def post(postId):
     postObj = Post.query.get(postId)
     commentQuery = Comment.query.filter(Comment.postedOn == postObj).all()
 
-    # NOTE: do I need to create a recursive list of dicts here??? Couldn't I just use
-    # the Jinja2 macro recursively through the Comment objects? Or would that query
-    # the database with every time I get a comment's replies?
+    # createListDict loads all the comment objects into a nested dictionary (fakeJson)
+    # to avoid querying the database with every new comment
 
     fakeJson = createListDict(commentQuery)
 
@@ -179,8 +62,6 @@ def createPost():
 
 @app.route("/addComment/<int:postId>", methods=["POST"])
 def addComment(postId):
-    # this needs a lot more input sanitization
-
     newComment = Comment(
         author=request.json.get("name", "Generic User"),
         content=request.json.get("content", "no content"),
@@ -201,3 +82,8 @@ def addComment(postId):
     }
 
     return comDict
+
+
+@app.errorhandler(404)
+def pageNotFound(error):
+    return render_template("errors/404.html"), 404
