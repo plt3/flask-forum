@@ -62,26 +62,12 @@ def createPost():
 
 @app.route("/addComment/<int:postId>", methods=["POST"])
 def addComment(postId):
-    newComment = Comment(
-        author=request.json.get("name", "Generic User"),
-        content=request.json.get("content", "no content"),
-        postId=postId,
-        replyId=request.json.get("replyTo", 0),
-    )
+    newComment = Comment.fromDict(request.json, postId)
 
     db.session.add(newComment)
     db.session.commit()
 
-    comDict = {
-        "id": newComment.id,
-        "postedOn": newComment.postId,
-        "author": newComment.author,
-        "content": newComment.content,
-        "replyTo": newComment.replyId,
-        "created": newComment.created.strftime("%-m/%-d/%Y, %-I:%M %p"),
-    }
-
-    return comDict
+    return newComment.toDict()
 
 
 @app.errorhandler(404)

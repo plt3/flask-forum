@@ -28,8 +28,34 @@ class Comment(db.Model):
         "Comment", backref=db.backref("replyTo", remote_side=[id]), lazy=True
     )
 
+    def toDict(self):
+        """
+        Convert Comment object to dictionary for /addComment/<postId> to return
+        """
+        selfDict = {
+            "id": self.id,
+            "postedOn": self.postId,
+            "author": self.author,
+            "content": self.content,
+            "replyTo": self.replyId,
+            "created": self.created.strftime("%-m/%-d/%Y, %-I:%M %p"),
+        }
+
+        return selfDict
+
+    @classmethod
+    def fromDict(cls, commentDict, postNum):
+        """
+        Create Comment object from POST request body passed to /addComment/<postId>
+        """
+        newComment = cls(
+            author=commentDict.get("name", "Generic User"),
+            content=commentDict.get("content", "no content"),
+            postId=postNum,
+            replyId=commentDict.get("replyTo", 0),
+        )
+
+        return newComment
+
     def __repr__(self):
         return f"<Comment on post {self.postId} replying to {self.replyId}>"
-
-    # this class really needs a from_dict and to_dict method for use in /addComment/*
-    # API endpoint!!!
