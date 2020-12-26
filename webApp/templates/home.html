@@ -1,5 +1,8 @@
 {% extends 'layout.html' %}
 {% block content %}
+  {% if search != '' %}
+    <h2 class="mt-4 text-center">Search results for "{{ search }}":</h2>
+  {% endif %}
   {% for post in posts.items %}
     <div class="media border mt-4 post-container">
       <div class="media-body pt-4 pl-4 pr-4 pb-2">
@@ -17,9 +20,17 @@
       {%- for page in posts.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
         {% if page %}
           {% if page != posts.page %}
-	    <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+	    {% if search != '' %}
+	      <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page, q=search) }}">{{ page }}</a></li>
+	    {% else %}
+	      <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+	    {% endif %}
           {% else %}
-	    <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+	    {% if search != '' %}
+	      <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page, q=search) }}">{{ page }}</a></li>
+	    {% else %}
+	      <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+	    {% endif %}
           {% endif %}
         {% else %}
 	  <li class="page-item disabled"><p class="page-link">...</p></li>

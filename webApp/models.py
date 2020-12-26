@@ -11,6 +11,27 @@ class Post(db.Model):
     content = db.Column(db.String(20000), nullable=False)
     comments = db.relationship("Comment", backref="postedOn", lazy=True)
 
+    def toDict(self):
+        selfDict = {
+            "id": self.id,
+            "author": self.author,
+            "title": self.title,
+            "content": self.content,
+            "created": str(self.created),
+        }
+
+        return selfDict
+
+    @classmethod
+    def fromDict(cls, postDict):
+        newPost = cls(
+            author=postDict.get("name", "Generic User"),
+            title=postDict.get("title", "no title"),
+            content=postDict.get("content", "no content"),
+        )
+
+        return newPost
+
     def __repr__(self):
         return f"<Post {self.title[:30]} by {self.author}>"
 
@@ -28,7 +49,7 @@ class Comment(db.Model):
         "Comment", backref=db.backref("replyTo", remote_side=[id]), lazy=True
     )
 
-    def toDict(self):
+    def toDict(self, timeFormat=False):
         """
         Convert Comment object to dictionary for /addComment/<postId> to return
         """
@@ -38,8 +59,12 @@ class Comment(db.Model):
             "author": self.author,
             "content": self.content,
             "replyTo": self.replyId,
-            "created": self.created.strftime("%-m/%-d/%Y, %-I:%M %p"),
         }
+
+        if timeFormat:
+            selfDict["created"] = self.created.strftime("%-m/%-d/%Y, %-I:%M %p")
+        else:
+            selfDict["created"] = str(self.created)
 
         return selfDict
 

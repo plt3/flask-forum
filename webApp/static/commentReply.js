@@ -144,7 +144,7 @@ async function postComment() {
   const nameElem = commentForm.elements.name;
   const pathArr = window.location.pathname.split("/");
   const postId = parseInt(pathArr[pathArr.length - 1], 10);
-  const commentEndpoint = `${window.location.protocol}//${window.location.host}/addComment/${postId}`;
+  const commentEndpoint = `${window.location.protocol}//${window.location.host}/api/${postId}/addComment`;
 
   let repliedTo = 0;
 
@@ -159,6 +159,7 @@ async function postComment() {
       name: nameElem.value,
       content: contentElem.value,
       replyTo: repliedTo,
+      timeFormat: true,
     }),
   };
 
