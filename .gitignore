@@ -8,6 +8,7 @@ venv
 
 commentModel.py
 jinjaTest.py
+secretKey.py
 
 .eslintrc.js
 node_modules/
