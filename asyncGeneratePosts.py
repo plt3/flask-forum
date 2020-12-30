@@ -5,7 +5,7 @@ import time
 import aiohttp
 
 """PostMaker class creates as many random forum posts as needed to fill website with
-test data. Favor using this module over fillDb.py, as this one queries APIs
+test data. Favor using this module over generatePosts.py, as this one queries APIs
 asynchronously and is therefore much faster.
 
 """
@@ -34,7 +34,6 @@ class PostMaker:
         quote, and random messages APIs
 
         """
-
         self.apiKey = apiKey
 
     def createPosts(self, numPosts):
@@ -42,7 +41,8 @@ class PostMaker:
         method to create posts, and it uses most other methods in the class
 
         :numPosts: number of posts to create
-        :returns: list of tuples of the form (post author, post title, post content)
+        :returns: list of dictionaries of the form {'name': post author, 'title': post
+        title, 'content': post content}
 
         """
         details, authors, titles, skatePars, wikiLines = asyncio.run(
@@ -54,14 +54,17 @@ class PostMaker:
         skateCounter = 0
 
         for index, post in enumerate(details):
+            postDict = {"name": authors[index], "title": titles[index]}
+
             if post[0] == PostMaker.wikiType:
                 body = " ".join(wikiLines[wikiCounter : wikiCounter + post[1]])
-                madePosts.append((authors[index], titles[index], body))
                 wikiCounter += post[1]
             else:
                 body = "".join(skatePars[skateCounter : skateCounter + post[1]]).strip()
-                madePosts.append((authors[index], titles[index], body))
                 skateCounter += post[1]
+
+            postDict["content"] = body
+            madePosts.append(postDict)
 
         return madePosts
 
