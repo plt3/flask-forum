@@ -3,6 +3,11 @@ import time
 
 import requests
 
+"""SYNCHRONOUS VERSION OF asyncFillDb.py
+FAVOR asyncFillDb.py INSTEAD, THIS ONE IS VERY SLOW (~20x SLOWER FOR 100 POSTS)
+
+"""
+
 
 class PostMaker:
 
@@ -34,28 +39,11 @@ class PostMaker:
         (author, title, content)
 
         """
-        start = time.time()
         allAuthors = self.makeNames(numPosts)
-        print("got all authors")
-        t1 = time.time()
-        print(t1 - start)
         allTitles = self.makeTitles(numPosts)
-        print("got all titles")
-        t2 = time.time()
-        print(t2 - t1)
         postDetails, totalsDict = PostMaker.makePostLengths(numPosts)
-        print("made all post lengths")
-        t3 = time.time()
-        print(t3 - t2)
         allSkateParagraphs = self.getSkateParagraphs(totalsDict[PostMaker.skateType])
-        print("got all paragraphs")
-        t4 = time.time()
-        print(t4 - t3)
         allWikihowLines = self.getWikihowLines(totalsDict[PostMaker.wikiType])
-        print("got all lines")
-        t5 = time.time()
-        print(t5 - t4)
-        print("took", t5 - start)
 
         madePosts = []
         wikiCounter = 0
@@ -190,3 +178,13 @@ class PostMaker:
             wikiLines.extend(list(response.json().values()))
 
         return wikiLines
+
+
+if __name__ == "__main__":
+    from secretKey import rapidApiKey
+
+    a = PostMaker(rapidApiKey)
+    start = time.time()
+    b = a.createPosts(10)
+    end = time.time()
+    print(f"Took {round(end - start, 2)} seconds.")
