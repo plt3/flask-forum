@@ -1,21 +1,23 @@
 import asyncio
 import random
 import time
+from json.decoder import JSONDecodeError
 
 import aiohttp
 
-"""PostMaker class creates as many random forum posts as needed to fill website with
-test data. Favor using this module over generatePosts.py, as this one queries APIs
-asynchronously and is therefore much faster.
+"""ContentMaker class creates as many random forum posts/comments as needed to fill
+website with test data. Favor using this module over generatePosts.py, as this one
+queries APIs asynchronously and is therefore much faster.
 
 """
 
 
-class PostMaker:
+class ContentMaker:
 
     """Class to create any number of random posts and comments with which to populate
     website.
     createPosts method is only method a user must call to generate random posts
+    createComments method is only method a user must call to generate random comments
     All others are helper methods
 
     """
@@ -28,7 +30,7 @@ class PostMaker:
     skateType = "skate"
 
     def __init__(self, apiKey):
-        """Initialize PostMaker object with specified API key
+        """Initialize ContentMaker object with specified API key
 
         :apiKey: rapidapi.com API key to access wikihow, skate ipsum, random name,
         quote, and random messages APIs
@@ -56,7 +58,7 @@ class PostMaker:
         for index, post in enumerate(details):
             postDict = {"name": authors[index], "title": titles[index]}
 
-            if post[0] == PostMaker.wikiType:
+            if post[0] == ContentMaker.wikiType:
                 body = " ".join(wikiLines[wikiCounter : wikiCounter + post[1]])
                 wikiCounter += post[1]
             else:
@@ -68,6 +70,36 @@ class PostMaker:
 
         return madePosts
 
+    def createComments(self, numComments):
+        """Main method to create random forum comments. A user only needs to call this
+        method to create comments
+
+        :numComments: number of comments to create
+        :returns: list of dictionaries of the form {'name': comment author, 'content':
+        comment content}
+
+        """
+        authors, comments = asyncio.run(self.queryCommentApis(numComments))
+
+        return [{"name": auth, "content": com} for auth, com in zip(authors, comments)]
+
+    async def queryCommentApis(self, numComments):
+        """Main async method to query all APIs needed to create comments. Called by
+        createComments method.
+
+        :numComments: number of comments to create
+        :returns: tuple of all generated names and all generated comment contents
+
+        """
+        async with aiohttp.ClientSession() as mainSession:
+            tasksList = [
+                self.makeNames(numComments, mainSession),
+                self.makeCommentContents(numComments, mainSession),
+            ]
+            allNames, allContents = await asyncio.gather(*tasksList)
+
+        return allNames, allContents
+
     async def queryAllApis(self, numPosts):
         """Main async method to query all APIs and return all data needed to create
         posts. Called by createPosts method.
@@ -78,14 +110,16 @@ class PostMaker:
         needed, and all wkihow sentences needed
 
         """
-        postDetails, totalsDict = PostMaker.makePostLengths(numPosts)
+        postDetails, totalsDict = ContentMaker.makePostLengths(numPosts)
 
         async with aiohttp.ClientSession() as mainSession:
             tasksList = [
                 self.makeNames(numPosts, mainSession),
                 self.makeTitles(numPosts, mainSession),
-                self.getSkateParagraphs(totalsDict[PostMaker.skateType], mainSession),
-                self.getWikihowLines(totalsDict[PostMaker.wikiType], mainSession),
+                self.getSkateParagraphs(
+                    totalsDict[ContentMaker.skateType], mainSession
+                ),
+                self.getWikihowLines(totalsDict[ContentMaker.wikiType], mainSession),
             ]
 
             (
@@ -114,9 +148,39 @@ class PostMaker:
         }
 
         async with session.get(url, headers=headers, params=params) as response:
-            jsonResp = await response.json(content_type=None)
+            try:
+                jsonResp = await response.json(content_type=None)
+            except JSONDecodeError:
+                # messages API sometimes returns unescaped double quotes in its JSON,
+                # so this was the only way to get the message from it
+                message = await response.text()
+                realMessage = message[32:-2]
+
+                jsonResp = {"Category": "Random", "Message": realMessage}
 
         return jsonResp
+
+    async def makeCommentContents(self, number, session):
+        """Create specified amount of comments from messages API
+
+        :numComments: amount of comments to generate
+        :session: aiohttp ClientSession object
+        :returns: list of generated comments
+
+        """
+        commentUrl = "https://ajith-messages.p.rapidapi.com/getMsgs"
+        commentHost = "ajith-messages.p.rapidapi.com"
+        params = {"category": "random"}
+
+        commentRequests = [
+            self.getJson(session, commentUrl, commentHost, params=params)
+            for _ in range(number)
+        ]
+        commentResponses = await asyncio.gather(*commentRequests)
+
+        comments = [resp["Message"] for resp in commentResponses]
+
+        return comments
 
     async def makeNames(self, number, session):
         """Create specified amount of random (German) names from random name API
@@ -229,8 +293,9 @@ class PostMaker:
 if __name__ == "__main__":
     from secretKey import rapidApiKey
 
-    a = PostMaker(rapidApiKey)
+    a = ContentMaker(rapidApiKey)
     start = time.time()
-    posts = a.createPosts(100)
+    # posts = a.createPosts(10)
+    comments = a.createComments(10)
     end = time.time()
     print(f"Took {round(end - start, 2)} seconds.")
