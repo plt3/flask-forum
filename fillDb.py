@@ -23,6 +23,25 @@ def fillPosts(numPosts):
         postRes.raise_for_status()
 
 
+def getPostIds():
+    """Return list of all post IDs in website
+
+    :returns: list of IDs of all posts in the website
+
+    """
+    endpoint = 'http://localhost:5000/api/posts'
+    params = {'page': 1, 'perPage': 20}
+    response = requests.get(endpoint, params=params)
+    postIds = [post['id'] for post in response.json()['response']]
+
+    while response.json()['hasNext']:
+        params['page'] += 1
+        response = requests.get(endpoint, params=params)
+        postIds.extend([post['id'] for post in response.json()['response']])
+
+    return postIds
+
+
 def getPostComments(postId, addZero=True):
     """Return list of all comment IDs on specified post
 
@@ -76,16 +95,22 @@ def commentOnPost(postNum, numComments):
 
 
 def fillComments(minPerPost, maxPerPost):
-    """TODO: generate random amount of comments on each post in the database
+    """Generate random amount of comments on each post in the database
 
-    :minPerPost: TODO
-    :maxPerPost: TODO
-    :returns: TODO
+    :minPerPost: minimum amount of comments to have on each post
+    :maxPerPost: maximum amount of comments to have on each post
+    :returns: None
 
     """
-    pass
+    # NOTE: this generates A LOT of comments (up to maxPerPost * number of posts), and
+    # is synchronous so that the website can handle it. It may take a while to run
+
+    allPostIds = getPostIds()
+
+    for id in allPostIds:
+        commentsToMake = random.randint(minPerPost, maxPerPost)
+        commentOnPost(id, commentsToMake)
 
 
 if __name__ == "__main__":
-    # print(getPostComments(15))
-    commentOnPost(115, 50)
+    fillComments(0, 20)
