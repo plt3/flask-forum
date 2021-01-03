@@ -73,20 +73,29 @@ def createPost():
     return render_template("createPost.html", form=form)
 
 
-@app.route("/api/getPosts", methods=["GET"])
+@app.route("/api/posts", methods=["GET"])
 def apiGetPosts():
     page = request.args.get("page", default=1, type=int)
     perPage = request.args.get("perPage", default=20, type=int)
+    id = request.args.get("id", default=0, type=int)
 
     if perPage > 20:
         perPage = 20
 
-    posts = Post.query.order_by(Post.id.desc()).paginate(page=page, per_page=perPage)
+    if id == 0:
+        posts = Post.query.order_by(Post.id.desc()).paginate(
+            page=page, per_page=perPage
+        )
 
-    return {"response": [post.toDict() for post in posts.items]}
+        return {
+            "response": [post.toDict() for post in posts.items],
+            "hasNext": posts.has_next,
+        }
+    else:
+        return Post.query.get_or_404(id).toDict()
 
 
-@app.route("/api/getComments", methods=["GET"])
+@app.route("/api/comments", methods=["GET"])
 def apiGetComments():
     page = request.args.get("page", default=1, type=int)
     perPage = request.args.get("perPage", default=20, type=int)
@@ -106,7 +115,10 @@ def apiGetComments():
             .paginate(page=page, per_page=perPage)
         )
 
-    return {"response": [comment.toDict() for comment in comments.items]}
+    return {
+        "response": [comment.toDict() for comment in comments.items],
+        "hasNext": comments.has_next,
+    }
 
 
 @app.route("/api/createPost", methods=["POST"])
@@ -122,6 +134,10 @@ def apiCreatePost():
 
 @app.route("/api/<int:postId>/addComment", methods=["POST"])
 def apiAddComment(postId):
+    Post.query.get_or_404(
+        postId
+    )  # return 404 if trying to post comment on nonexisting post
+
     userData = request.get_json(force=True) or {}
     newComment = Comment.fromDict(userData, postId)
 
