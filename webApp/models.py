@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from webApp import db
+from webApp.search import queryPostIndex
 
 
 class Post(db.Model):
@@ -31,6 +32,18 @@ class Post(db.Model):
         )
 
         return newPost
+
+    @classmethod
+    def search(cls, expression):
+        ids = queryPostIndex(expression)
+        when = [(id, i) for i, id in enumerate(ids)]
+
+        if len(when) == 0:
+            return None
+        else:
+            return cls.query.filter(cls.id.in_(ids)).order_by(
+                db.case(when, value=cls.id)
+            )
 
     def __repr__(self):
         return f"<Post {self.title[:30]} by {self.author}>"

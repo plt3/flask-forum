@@ -1,41 +1,47 @@
 {% extends 'layout.html' %}
 {% block content %}
   {% if search != '' %}
-    <h2 class="mt-4 text-center">Search results for "{{ search }}":</h2>
+    {% if posts is none %}
+      <h2 class="mt-4 text-center">No results found for "{{ search }}".</h2>
+    {% else %}
+      <h2 class="mt-4 text-center">Search results for "{{ search }}":</h2>
+    {% endif %}
   {% endif %}
-  {% for post in posts.items %}
-    <div class="media border mt-4 post-container">
-      <div class="media-body pt-4 pl-4 pr-4 pb-2">
-        <ul class="list-inline mb-0">
-	  <li class="list-inline-item"><h3><a class="text-dark" href="{{ url_for('post', postId=post.id) }}">{{ post.title }}</a></h3></li>
-	  <li class="list-inline-item"><p class="text-secondary"><span class="text-info">{{ post.author }}</span> said on {{ post.created.strftime("%B %-d, %Y at %-I:%M %p") }}</p></li>
-        </ul>
-        <hr class="mt-0">
-        <p>{{ post.content }}</p>
+  {% if posts is not none %}
+    {% for post in posts.items %}
+      <div class="media border mt-4 post-container">
+        <div class="media-body pt-4 pl-4 pr-4 pb-2">
+          <ul class="list-inline mb-0">
+            <li class="list-inline-item"><h3><a class="text-dark" href="{{ url_for('post', postId=post.id) }}">{{ post.title }}</a></h3></li>
+            <li class="list-inline-item"><p class="text-secondary"><span class="text-info">{{ post.author }}</span> said on {{ post.created.strftime("%B %-d, %Y at %-I:%M %p") }}</p></li>
+          </ul>
+          <hr class="mt-0">
+          <p>{{ post.content }}</p>
+        </div>
       </div>
-    </div>
-  {% endfor %}
-  <nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-end pt-3">
-      {%- for page in posts.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
-        {% if page %}
-          {% if page != posts.page %}
-	    {% if search != '' %}
-	      <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page, q=search) }}">{{ page }}</a></li>
-	    {% else %}
-	      <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
-	    {% endif %}
+    {% endfor %}
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-end pt-3">
+        {%- for page in posts.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+          {% if page %}
+            {% if page != posts.page %}
+              {% if search != '' %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page, q=search) }}">{{ page }}</a></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+              {% endif %}
+            {% else %}
+              {% if search != '' %}
+                <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page, q=search) }}">{{ page }}</a></li>
+              {% else %}
+                <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
+              {% endif %}
+            {% endif %}
           {% else %}
-	    {% if search != '' %}
-	      <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page, q=search) }}">{{ page }}</a></li>
-	    {% else %}
-	      <li class="page-item active"><a class="page-link" href="{{ url_for('home', page=page) }}">{{ page }}</a></li>
-	    {% endif %}
+            <li class="page-item disabled"><p class="page-link">...</p></li>
           {% endif %}
-        {% else %}
-	  <li class="page-item disabled"><p class="page-link">...</p></li>
-        {% endif %}
-      {%- endfor %}
-    </ul>
-  </nav>
+          {%- endfor %}
+      </ul>
+    </nav>
+  {% endif %}
 {% endblock content %}

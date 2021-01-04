@@ -3,12 +3,13 @@ from flask import redirect, render_template, request, url_for
 from webApp import app, db
 from webApp.forms import CommentForm, PostForm
 from webApp.models import Comment, Post
+from webApp.search import addPostToIndex
 from webApp.utils import createListDict
 
 
 @app.route("/")
 def home():
-    PER_PAGE = 5
+    PER_PAGE = 10
 
     search = request.args.get("q", default="")
     page = request.args.get("page", default=1, type=int)
@@ -18,13 +19,11 @@ def home():
             page=page, per_page=PER_PAGE
         )
     else:
-        posts = (
-            Post.query.filter(
-                (Post.content.contains(search)) | (Post.title.contains(search))
-            )
-            .order_by(Post.id.desc())
-            .paginate(page=page, per_page=PER_PAGE)
-        )
+        searchQuery = Post.search(search)
+        if searchQuery is None:
+            posts = None
+        else:
+            posts = searchQuery.paginate(page=page, per_page=PER_PAGE)
 
     return render_template("home.html", posts=posts, search=search)
 
@@ -65,6 +64,7 @@ def createPost():
         )
         db.session.add(postObj)
         db.session.commit()
+        addPostToIndex(postObj)
 
         # should flash a message here
 
@@ -128,6 +128,7 @@ def apiCreatePost():
 
     db.session.add(newPost)
     db.session.commit()
+    addPostToIndex(newPost)
 
     return newPost.toDict()
 
