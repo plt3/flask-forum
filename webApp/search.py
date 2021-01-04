@@ -16,7 +16,7 @@ def addPostToIndex(postObj):
 
 def queryPostIndex(query):
     if not current_app.elasticsearch:
-        return [], 0
+        return []
 
     search = current_app.elasticsearch.search(
         index=current_app.esPostIndexName,

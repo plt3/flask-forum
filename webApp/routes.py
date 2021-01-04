@@ -25,7 +25,7 @@ def home():
         else:
             posts = searchQuery.paginate(page=page, per_page=PER_PAGE)
 
-    return render_template("home.html", posts=posts, search=search)
+    return render_template("home.html", posts=posts, search=search, title=search)
 
 
 @app.route("/post/<int:postId>")
@@ -40,17 +40,13 @@ def post(postId):
 
     fakeJson = createListDict(commentQuery)
 
-    # DELETE THIS ONCE JAVASCRIPT IS UNCACHED
-
-    import time
-
     return render_template(
         "post.html",
         post=postObj,
         data=fakeJson,
         numComments=len(commentQuery),
         form=form,
-        t=time.time(),
+        title=postObj.title,
     )
 
 
@@ -66,11 +62,9 @@ def createPost():
         db.session.commit()
         addPostToIndex(postObj)
 
-        # should flash a message here
-
         return redirect(url_for("home"))
 
-    return render_template("createPost.html", form=form)
+    return render_template("createPost.html", form=form, title="Create Post")
 
 
 @app.route("/api/posts", methods=["GET"])
@@ -157,4 +151,4 @@ def pageNotFound(error):
     ):
         return {"response": "404: Page not found."}, 404
     else:
-        return render_template("errors/404.html"), 404
+        return render_template("errors/404.html", title="Not Found"), 404

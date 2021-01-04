@@ -10,7 +10,6 @@ app.config["SECRET_KEY"] = os.environ.get("FLASK_FORUM_SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("FLASK_FORUM_DB_URI")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["ELASTICSEARCH_URL"] = os.environ.get("FLASK_FORUM_ES_URL")
-# app.config["SQLALCHEMY_ECHO"] = True
 
 app.elasticsearch = (
     Elasticsearch([app.config["ELASTICSEARCH_URL"]])

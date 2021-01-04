@@ -29,15 +29,15 @@ def getPostIds():
     :returns: list of IDs of all posts in the website
 
     """
-    endpoint = 'http://localhost:5000/api/posts'
-    params = {'page': 1, 'perPage': 20}
+    endpoint = "http://localhost:5000/api/posts"
+    params = {"page": 1, "perPage": 20}
     response = requests.get(endpoint, params=params)
-    postIds = [post['id'] for post in response.json()['response']]
+    postIds = [post["id"] for post in response.json()["response"]]
 
-    while response.json()['hasNext']:
-        params['page'] += 1
+    while response.json()["hasNext"]:
+        params["page"] += 1
         response = requests.get(endpoint, params=params)
-        postIds.extend([post['id'] for post in response.json()['response']])
+        postIds.extend([post["id"] for post in response.json()["response"]])
 
     return postIds
 
@@ -113,4 +113,5 @@ def fillComments(minPerPost, maxPerPost):
 
 
 if __name__ == "__main__":
+    # fillPosts(50)
     fillComments(0, 20)
