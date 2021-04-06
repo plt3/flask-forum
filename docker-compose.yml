@@ -1,0 +1,28 @@
+version: "3.9"
+
+# NOTE: leaving environment variables with no value makes Docker apply their values on
+# the local machine. Therefore, set all the following environment variables accordingly:
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER:
+      POSTGRES_PASSWORD:
+  app:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    environment:
+      FLASK_FORUM_SECRET_KEY:
+      POSTGRES_USER:
+      POSTGRES_PASSWORD:
+    # not flask run because runIt lets me create database before starting the server
+    command: python3 runIt.py
+    ports:
+      - 5000:5000
+    depends_on:
+      - db

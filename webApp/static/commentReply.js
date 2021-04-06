@@ -146,21 +146,23 @@ async function postComment() {
   const postId = parseInt(pathArr[pathArr.length - 1], 10);
   const commentEndpoint = `${window.location.protocol}//${window.location.host}/api/${postId}/addComment`;
 
-  let repliedTo = 0;
+  const jsonObj = {
+    name: nameElem.value,
+    content: contentElem.value,
+    timeFormat: true,
+  };
+
+  let noReplyTo = true;
 
   if (commentForm.parentElement.tagName !== "ARTICLE") {
-    repliedTo = parseInt(commentForm.parentElement.id, 10);
+    jsonObj.replyTo = parseInt(commentForm.parentElement.id, 10);
+    noReplyTo = false;
   }
 
   const fetchOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json;charset=utf-8" },
-    body: JSON.stringify({
-      name: nameElem.value,
-      content: contentElem.value,
-      replyTo: repliedTo,
-      timeFormat: true,
-    }),
+    body: JSON.stringify(jsonObj),
   };
 
   if (contentElem.checkValidity() && nameElem.checkValidity()) {
@@ -168,7 +170,7 @@ async function postComment() {
 
     const respComment = await makeRequest(commentEndpoint, fetchOptions);
 
-    if (repliedTo === 0) {
+    if (noReplyTo) {
       const commentNode = makeCommentNode(respComment);
       const articleElem = document.querySelector("article.post-container");
       const firstCommentElem = commentForm.nextElementSibling;

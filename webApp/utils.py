@@ -1,6 +1,9 @@
 def getReplies(searchList, id, sort=False):
     # return comments replying to the specified ID (from comment list from database)
 
+    if id == 0:
+        id = None
+
     replies = [comment for comment in searchList if comment.replyId == id]
 
     if sort:

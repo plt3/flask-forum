@@ -55,9 +55,7 @@ class Comment(db.Model):
     author = db.Column(db.String(100), nullable=False)
     content = db.Column(db.String(2000), nullable=False)
     postId = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
-    replyId = db.Column(
-        db.Integer, db.ForeignKey("comment.id"), nullable=False, default=0
-    )
+    replyId = db.Column(db.Integer, db.ForeignKey("comment.id"))
     replies = db.relationship(
         "Comment", backref=db.backref("replyTo", remote_side=[id]), lazy=True
     )
@@ -90,7 +88,7 @@ class Comment(db.Model):
             author=commentDict.get("name", "Generic User"),
             content=commentDict.get("content", "no content"),
             postId=postNum,
-            replyId=commentDict.get("replyTo", 0),
+            replyId=commentDict.get("replyTo"),
         )
 
         return newComment
