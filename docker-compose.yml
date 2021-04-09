@@ -12,6 +12,17 @@ services:
     environment:
       POSTGRES_USER:
       POSTGRES_PASSWORD:
+      POSTGRES_DB:
+  es:
+    image: elasticsearch:7.12.0
+    restart: always
+    ports:
+      - 9200:9200
+    environment:
+      node.name: node1
+      discovery.type: single-node
+      xpack.security.enabled: "true"
+      ELASTIC_PASSWORD:
   app:
     build: .
     volumes:
@@ -20,9 +31,14 @@ services:
       FLASK_FORUM_SECRET_KEY:
       POSTGRES_USER:
       POSTGRES_PASSWORD:
+      POSTGRES_DB:
+      FLASK_FORUM_ES_URL: es:9200
+      ELASTIC_USER: elastic
+      ELASTIC_PASSWORD:
     # not flask run because runIt lets me create database before starting the server
     command: python3 runIt.py
     ports:
       - 5000:5000
     depends_on:
       - db
+      - es

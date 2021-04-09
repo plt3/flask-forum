@@ -88,7 +88,9 @@ class Comment(db.Model):
             author=commentDict.get("name", "Generic User"),
             content=commentDict.get("content", "no content"),
             postId=postNum,
-            replyId=commentDict.get("replyTo"),
+            replyId=None
+            if commentDict.get("replyTo") == 0
+            else commentDict.get("replyTo"),
         )
 
         return newComment

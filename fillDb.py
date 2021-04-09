@@ -85,7 +85,7 @@ def commentOnPost(postNum, numComments):
     for comment in comments:
         commentObj = {
             "name": comment["name"],
-            "content": comment["content"],
+            "content": comment["content"][:1999],
             "replyTo": random.choice(commentIds),
         }
         response = requests.post(apiEndpoint, json=commentObj)

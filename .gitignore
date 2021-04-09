@@ -14,3 +14,5 @@ secretKey.py
 node_modules/
 package-lock.json
 package.json
+
+envi.sh
