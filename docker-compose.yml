@@ -1,12 +1,14 @@
 version: "3.9"
 
 # NOTE: leaving environment variables with no value makes Docker apply their values on
-# the local machine. Therefore, set all the following environment variables accordingly:
+# the host machine. Therefore, set all the following environment variables accordingly:
 
 services:
   db:
     image: postgres:latest
     restart: always
+    expose:
+      - "5432"
     volumes:
       - postgresdata:/var/lib/postgresql/data
     environment:
@@ -16,6 +18,8 @@ services:
   es:
     image: elasticsearch:7.12.0
     restart: always
+    expose:
+      - "9200"
     volumes:
       - elasticsearchdata:/usr/share/elasticsearch/data
     environment:
@@ -25,8 +29,11 @@ services:
       ELASTIC_PASSWORD:
   app:
     build: .
-    volumes:
-      - .:/usr/src/app
+    restart: always
+    # volumes:
+    #   - .:/usr/src/app
+    expose:
+      - "8080"
     environment:
       FLASK_FORUM_SECRET_KEY:
       POSTGRES_USER:
@@ -35,13 +42,20 @@ services:
       FLASK_FORUM_ES_URL: es:9200
       ELASTIC_USER: elastic
       ELASTIC_PASSWORD:
-    # not flask run because runIt lets me create database before starting the server
-    command: python3 runIt.py
-    ports:
-      - "5000:5000"
+    # first wait for elasticsearch to be ready and create database schema, then run
+    # server with uwsgi
+    command: sh -c "python3 runIt.py && uwsgi uwsgi.ini"
     depends_on:
       - db
       - es
+  nginxproxy:
+    restart: always
+    build: nginx/
+    ports:
+      - "80:80"
+    # this doesn't actually wait for the app to be ready, but whatever
+    depends_on:
+      - app
 
 volumes:
   postgresdata:

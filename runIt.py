@@ -4,6 +4,7 @@ import time
 import requests
 from requests.exceptions import ConnectionError
 
+# import app so that I can point uWSGI to this file for the executable
 from webApp import app, db
 
 if __name__ == "__main__":
@@ -26,6 +27,4 @@ if __name__ == "__main__":
 
     db.create_all()
 
-    print("database schema created, running server...")
-
-    app.run(host="0.0.0.0", debug=True)
+    print("database schema created")

@@ -12,13 +12,15 @@ postgresUser = os.environ.get("POSTGRES_USER")
 postgresDb = os.environ.get("POSTGRES_DB")
 postgresqlStr = f"postgresql://{postgresUser}:{postgresPwd}@db:5432/{postgresDb}"
 app.config["SQLALCHEMY_DATABASE_URI"] = postgresqlStr
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///other.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["ELASTICSEARCH_URL"] = os.environ.get("FLASK_FORUM_ES_URL")
+# app.config["ELASTICSEARCH_URL"] = None
 
 esAuth = (os.environ.get("ELASTIC_USER"), os.environ.get("ELASTIC_PASSWORD"))
 
 app.elasticsearch = (
-    Elasticsearch([app.config["ELASTICSEARCH_URL"]], http_auth=esAuth)
+    Elasticsearch(["http://" + app.config["ELASTICSEARCH_URL"]], http_auth=esAuth)
     if app.config["ELASTICSEARCH_URL"]
     else None
 )
