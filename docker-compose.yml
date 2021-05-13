@@ -7,8 +7,10 @@ services:
   db:
     image: postgres:latest
     restart: always
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_USER:
       POSTGRES_PASSWORD:
@@ -16,8 +18,10 @@ services:
   es:
     image: elasticsearch:7.12.0
     restart: always
+    volumes:
+      - elasticsearchdata:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
+      - "127.0.0.1:9200:9200"
     environment:
       node.name: node1
       discovery.type: single-node
@@ -38,7 +42,11 @@ services:
     # not flask run because runIt lets me create database before starting the server
     command: python3 runIt.py
     ports:
-      - 5000:5000
+      - "5000:5000"
     depends_on:
       - db
       - es
+
+volumes:
+  postgresdata:
+  elasticsearchdata:
