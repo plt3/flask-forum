@@ -15,6 +15,8 @@ services:
       POSTGRES_USER:
       POSTGRES_PASSWORD:
       POSTGRES_DB:
+    networks:
+      - backend
   viewcount:
     image: redis:6.2.4
     restart: always
@@ -22,6 +24,8 @@ services:
       - "6379"
     volumes:
       - redisdata:/data
+    networks:
+      - backend
   es:
     image: elasticsearch:7.12.0
     restart: always
@@ -34,6 +38,8 @@ services:
       discovery.type: single-node
       xpack.security.enabled: "true"
       ELASTIC_PASSWORD:
+    networks:
+      - backend
   app:
     build: .
     restart: always
@@ -50,14 +56,20 @@ services:
       FLASK_FORUM_ES_URL: es:9200
       ELASTIC_USER: elastic
       ELASTIC_PASSWORD:
+    networks:
+      - backend
+      - frontend
     depends_on:
       - db
+      - viewcount
       - es
   nginxproxy:
     restart: always
     build: nginx/
     ports:
       - "80:80"
+    networks:
+      - frontend
     # this doesn't actually wait for the app to be ready, but whatever
     depends_on:
       - app
@@ -66,3 +78,10 @@ volumes:
   postgresdata:
   redisdata:
   elasticsearchdata:
+
+# creating separate networks prevents the reverse proxy from communicating
+# with postgres, redis, and elasticsearch since there is no reason they
+# would need to communicate. Could create even more networks if I wanted to
+networks:
+  backend:
+  frontend:
