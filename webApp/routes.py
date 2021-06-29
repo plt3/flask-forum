@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for
 
-from webApp import app, db
+from webApp import app, db, redisClient
 from webApp.forms import CommentForm, PostForm
 from webApp.models import Comment, Post
 from webApp.search import addPostToIndex
@@ -35,6 +35,10 @@ def post(postId):
     postObj = Post.query.get(postId)
     commentQuery = Comment.query.filter(Comment.postedOn == postObj).all()
 
+    # get post view count from redis
+    viewCount = int(redisClient.incr(postId))
+    viewStr = f"{viewCount} view" if viewCount == 1 else f"{viewCount} views"
+
     # createListDict loads all the comment objects into a nested dictionary (fakeJson)
     # to avoid querying the database with every new comment
 
@@ -47,6 +51,7 @@ def post(postId):
         numComments=len(commentQuery),
         form=form,
         title=postObj.title,
+        viewStr=viewStr,
     )
 
 

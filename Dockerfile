@@ -10,5 +10,6 @@ RUN pip install -r requirements.txt
 # copy project
 COPY . .
 
-# only run this if you want this app to run as its own container without docker-compose
-# CMD ["python3", "runIt.py"]
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]

@@ -3,7 +3,7 @@
   <article class="pt-4 pl-4 pr-4 pb-2 mt-4 border post-container">
     <div class="post-title">
       <h3>{{ post.title }}</h3>
-      <p class="text-secondary mb-2"><span class="text-info">{{ post.author }}</span> — {{ post.created.strftime("%B %-d, %Y at %-I:%M %p") }}</p>
+      <p class="text-secondary mb-2"><span class="text-info">{{ post.author }}</span> — {{ post.created.strftime("%B %-d, %Y at %-I:%M %p") }} ({{ viewStr }})</p>
     </div>
     <hr class="mt-0">
     <p>{{ post.content }}</p>
